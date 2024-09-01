@@ -4,4 +4,7 @@
 #include <limits>
 
 
-
+struct Base {
+    int ancho;
+    int alto;
+};
