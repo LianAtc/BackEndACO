@@ -16,7 +16,7 @@
 using namespace std;
 
 class Pieza {
-private:
+public:
     int id; 
     float x, y;
     float w, h;

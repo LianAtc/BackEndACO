@@ -13,10 +13,11 @@
 #ifndef CLSOLUCION_H
 #define CLSOLUCION_H
 #include <fstream>
+#include <list>
 using namespace std;
 
 class Solucion {
-private:
+public:
     std::list<Pieza> piezas;
     Base base;            
     float desperdicio;
