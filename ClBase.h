@@ -15,9 +15,12 @@
 #include <fstream>
 using namespace std;
 
+#include "ClPieza.h"
+
 class Base {
 private:
     float W, H;
+    std::list<Pieza> piezas;
 };
 
 #endif /* CLBASE_H */

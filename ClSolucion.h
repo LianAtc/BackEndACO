@@ -16,6 +16,9 @@
 #include <list>
 using namespace std;
 
+#include "ClBase.h"
+#include "ClPieza.h"
+
 class Solucion {
 public:
     std::list<Pieza> piezas;
