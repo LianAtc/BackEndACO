@@ -4,8 +4,11 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
-      <itemPath>ClACO.h</itemPath>
+      <itemPath>ClArista.h</itemPath>
       <itemPath>ClBase.h</itemPath>
+      <itemPath>ClGrafo.h</itemPath>
+      <itemPath>ClHormiga.h</itemPath>
+      <itemPath>ClNodo.h</itemPath>
       <itemPath>ClPieza.h</itemPath>
       <itemPath>ClSolucion.h</itemPath>
     </logicalFolder>
@@ -43,9 +46,15 @@
           <standard>8</standard>
         </ccTool>
       </compileType>
-      <item path="ClACO.h" ex="false" tool="3" flavor2="0">
+      <item path="ClArista.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="ClBase.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ClGrafo.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ClHormiga.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ClNodo.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="ClPieza.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -75,9 +84,15 @@
           <developmentMode>5</developmentMode>
         </asmTool>
       </compileType>
-      <item path="ClACO.h" ex="false" tool="3" flavor2="0">
+      <item path="ClArista.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="ClBase.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ClGrafo.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ClHormiga.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ClNodo.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="ClPieza.h" ex="false" tool="3" flavor2="0">
       </item>

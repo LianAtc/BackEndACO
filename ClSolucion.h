@@ -20,10 +20,26 @@ using namespace std;
 #include "ClPieza.h"
 
 class Solucion {
-public:
+private:
     std::list<Pieza> piezas;
-    Base base;            
+    Base base;
     float desperdicio;
+
+public:
+    Solucion(Base base) : base(base), desperdicio(0) {}
+
+    void agregarPieza(Pieza pieza) {
+        piezas.push_back(pieza);
+    }
+
+    void imprimirSolucion() const {
+        std::cout << "Solución:" << std::endl;
+        for (const auto& pieza : piezas) {
+            pieza.imprimirPieza();
+        }
+        base.imprimirCortes();
+        std::cout << "Desperdicio: " << desperdicio << std::endl;
+    }
 };
 
 #endif /* CLSOLUCION_H */

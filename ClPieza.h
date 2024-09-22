@@ -16,11 +16,17 @@
 using namespace std;
 
 class Pieza {
-public:
-    int id; 
+private:
+    int id;
     float x, y;
     float w, h;
     bool r;
+public:
+    Pieza(int id, float x, float y, float w, float h, bool r) : id(id), x(x), y(y), w(w), h(h), r(r) {}
+    void imprimirPieza() const {
+        std::cout << "Pieza ID: " << id << ", Posición: (" << x << ", " << y
+                  << "), Dimensiones: (" << w << ", " << h << "), Rotada: " << (r ? "Sí" : "No") << std::endl;
+    }
 };
 
 #endif /* CLPIEZA_H */

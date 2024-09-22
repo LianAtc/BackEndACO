@@ -4,163 +4,16 @@
 #include <utility>
 #include <string>
 
-// Clase Pieza
-class Pieza {
-private:
-    int id;
-    float x, y;
-    float w, h;
-    bool r;
+#include "ClPieza.h"
+#include "ClBase.h"
 
-public:
-    Pieza(int id, float x, float y, float w, float h, bool r)
-        : id(id), x(x), y(y), w(w), h(h), r(r) {}
+#include "ClSolucion.h"
 
-    void mostrar() const {
-        std::cout << "Pieza ID: " << id << ", Posición: (" << x << ", " << y
-                  << "), Dimensiones: (" << w << ", " << h << "), Rotada: " << (r ? "Sí" : "No") << std::endl;
-    }
-};
+#include "ClNodo.h"
+#include "ClArista.h"
+#include "ClGrafo.h"
 
-// Clase Base
-class Base {
-private:
-    float W, H;
-    std::vector<std::pair<float, float>> cortes;
-
-public:
-    Base(float W, float H) : W(W), H(H) {}
-
-    void agregarCorte(float x, float y) {
-        cortes.emplace_back(x, y);
-    }
-
-    void mostrarCortes() const {
-        std::cout << "Cortes en la base (" << W << ", " << H << "):" << std::endl;
-        for (const auto& corte : cortes) {
-            std::cout << "Corte en: (" << corte.first << ", " << corte.second << ")" << std::endl;
-        }
-    }
-};
-
-// Clase Solucion
-class Solucion {
-private:
-    std::list<Pieza> piezas;
-    Base base;
-    float desperdicio;
-
-public:
-    Solucion(Base base) : base(base), desperdicio(0) {}
-
-    void agregarPieza(Pieza pieza) {
-        piezas.push_back(pieza);
-    }
-
-    void mostrar() const {
-        std::cout << "Solución:" << std::endl;
-        for (const auto& pieza : piezas) {
-            pieza.mostrar();
-        }
-        base.mostrarCortes();
-        std::cout << "Desperdicio: " << desperdicio << std::endl;
-    }
-};
-
-// Clase Nodo
-class Nodo {
-private:
-    int id;
-    float w, h;
-    bool esHoja;
-
-public:
-    Nodo(int id, float w, float h, bool esHoja)
-        : id(id), w(w), h(h), esHoja(esHoja) {}
-
-    void mostrar() const {
-        std::cout << "Nodo ID: " << id << ", Dimensiones: (" << w << ", " << h << "), Es hoja: " << (esHoja ? "Sí" : "No") << std::endl;
-    }
-};
-
-// Clase Arista
-class Arista {
-private:
-    Nodo nodoInicial;
-    Nodo nodoFinal1;
-    Nodo nodoFinal2;
-    float posicionCorte;
-    std::string tipoCorte;
-    float desperdicio;
-    float feromonas;
-
-public:
-    Arista(Nodo inicio, Nodo final1, Nodo final2, float posicionCorte, std::string tipoCorte, float desperdicio, float feromonas)
-        : nodoInicial(inicio), nodoFinal1(final1), nodoFinal2(final2), posicionCorte(posicionCorte), tipoCorte(tipoCorte), desperdicio(desperdicio), feromonas(feromonas) {}
-
-    void mostrar() const {
-        std::cout << "Arista entre Nodo ";
-        nodoInicial.mostrar();
-        std::cout << " y Nodo ";
-        nodoFinal1.mostrar();
-        std::cout << " o ";
-        nodoFinal2.mostrar();
-        std::cout << "Posición del corte: " << posicionCorte
-                  << ", Tipo de corte: " << tipoCorte
-                  << ", Desperdicio: " << desperdicio
-                  << ", Feromonas: " << feromonas << std::endl;
-    }
-};
-
-// Clase Hormiga
-class Hormiga {
-private:
-    Solucion solucion;
-    std::list<Pieza> piezasPendientes;
-
-public:
-    Hormiga(Solucion sol) : solucion(sol) {}
-
-    void agregarPiezaPendiente(Pieza pieza) {
-        piezasPendientes.push_back(pieza);
-    }
-
-    void mostrar() const {
-        std::cout << "Hormiga - Solución: " << std::endl;
-        solucion.mostrar();
-        std::cout << "Piezas pendientes:" << std::endl;
-        for (const auto& pieza : piezasPendientes) {
-            pieza.mostrar();
-        }
-    }
-};
-
-// Clase Grafo
-class Grafo {
-private:
-    std::vector<Nodo> nodos;
-    std::vector<Arista> aristas;
-
-public:
-    void agregarNodo(Nodo nodo) {
-        nodos.push_back(nodo);
-    }
-
-    void agregarArista(Arista arista) {
-        aristas.push_back(arista);
-    }
-
-    void mostrar() const {
-        std::cout << "Nodos en el Grafo:" << std::endl;
-        for (const auto& nodo : nodos) {
-            nodo.mostrar();
-        }
-        std::cout << "Aristas en el Grafo:" << std::endl;
-        for (const auto& arista : aristas) {
-            arista.mostrar();
-        }
-    }
-};
+#include "ClHormiga.h"
 
 int main() {
     // Crear nodos
@@ -179,7 +32,7 @@ int main() {
     grafo.agregarArista(arista);
 
     // Mostrar el grafo
-    grafo.mostrar();
+    grafo.imprimirGrafo();
 
     // Crear una base
     Base base(100.0f, 50.0);
@@ -196,7 +49,7 @@ int main() {
     hormiga.agregarPiezaPendiente(Pieza(3, 8.0, 8.0, 12.0, 18.0, false));
 
     // Mostrar la hormiga
-    hormiga.mostrar();
+    hormiga.imprimirHormiga();
 
     return 0;
 }

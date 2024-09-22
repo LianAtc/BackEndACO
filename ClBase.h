@@ -20,7 +20,20 @@ using namespace std;
 class Base {
 private:
     float W, H;
-    std::list<Pieza> piezas;
+    std::vector<std::pair<float, float>> cortes;
+public:
+    Base(float W, float H) : W(W), H(H) {}
+
+    void agregarCorte(float x, float y) {
+        cortes.emplace_back(x, y);
+    }
+
+    void imprimirCortes() const {
+        std::cout << "Cortes en la base (" << W << ", " << H << "):" << std::endl;
+        for (const auto& corte : cortes) {
+            std::cout << "Corte en: (" << corte.first << ", " << corte.second << ")" << std::endl;
+        }
+    }
 };
 
 #endif /* CLBASE_H */
