@@ -23,7 +23,7 @@ private:
 
 public:
     // Inicialización
-    Nodo(int id, float w, float h, bool esHoja): id(id), w(w), h(h), esHoja(esHoja) {}
+    Nodo(int id_, float w_, float h_) : id(id_), w(w_), h(h_), esHoja(true) {}
     // Obtener valores (privados)
     float getAncho() const { return w; }
     float getAlto() const { return h; }

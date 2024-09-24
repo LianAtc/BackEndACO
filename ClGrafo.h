@@ -14,6 +14,8 @@
 #define CLGRAFO_H
 #include <fstream>
 using namespace std;
+#include "ClNodo.h"
+#include "ClArista.h"
 
 class Grafo {
 private:
@@ -27,6 +29,15 @@ public:
     }
     void agregarArista(Arista arista) {
         aristas.push_back(arista);
+    }
+    void inicializarGrafo(Base base) {
+        Nodo nodoInicial(0, base.area(), base.area());
+        agregarNodo(nodoInicial);
+    }
+    void inicializarFeromonas(float valorInicial) {
+        for (Arista& arista : aristas) {
+            arista.setFeromonas(valorInicial);
+        }
     }
     // Impresión
     void imprimirGrafo() const {

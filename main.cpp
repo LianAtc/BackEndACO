@@ -16,15 +16,27 @@
 #include "ClHormiga.h"
 
 void AlgoritmoACO(Base base, std::vector<Pieza> piezas, int numHormigas, int maxIter, float alpha, float beta, float rho, int tol) {
+    Grafo grafo;
+    grafo.inicializarGrafo(base); // InitGrafo(W, H)
+    grafo.inicializarFeromonas(0.1); // InitFeromonas(G)
+    Solucion mejorSol(base); // mejorSol ← null
+    int sinMej = 0; // sinMej ← 0
+    
+    std::vector<Solucion> soluciones;
+    
+    for (int i = 0; i < maxIter && sinMej < tol; i++) { // Mientras iter < maxIter Y sinMej < tol Hacer
+        for (int j = 0; j < numHormigas; j++) { // Para cada hormiga en 1...nHorm
+            
+        }
+    }
+    
 }
 
 int main() {
     
     // Valores iniciales del algoritmo ACO
     float alpha = 1.0, beta = 2.0, rho = 0.1;
-    int numHormigas = 100;
-    int maxIter = 100;
-    int tol = 50;
+    int numHormigas = 100, maxIter = 100, tol = 50;
     
     Base base(200, 200); // Pieza cerámica
     // Cortes
