@@ -28,7 +28,8 @@ private:
 public:
     Arista(Nodo inicio, Nodo final1, Nodo final2, float posicionCorte, std::string tipoCorte, float desperdicio, float feromonas)
         : nodoInicial(inicio), nodoFinal1(final1), nodoFinal2(final2), posicionCorte(posicionCorte), tipoCorte(tipoCorte), desperdicio(desperdicio), feromonas(feromonas) {}
-
+    float getFeromonas() const { return feromonas; }
+    void setFeromonas(float newValue) { feromonas = newValue; }    
     void imprimirArista() const {
         std::cout << "Arista entre Nodo ";
         nodoInicial.imprimirNodo();
