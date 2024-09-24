@@ -22,11 +22,14 @@ private:
     float W, H;
     std::vector<std::pair<float, float>> cortes;
 public:
+    // Inicialización
     Base(float W, float H) : W(W), H(H) {}
-    float area() const { return W * H; }
     void agregarCorte(float x, float y) {
         cortes.emplace_back(x, y);
     }
+    // Extras
+    float area() const { return W * H; }
+    // Impresión
     void imprimirCortes() const {
         std::cout << "Cortes en la base (" << W << ", " << H << "):" << std::endl;
         for (const auto& corte : cortes) {

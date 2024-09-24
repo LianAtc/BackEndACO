@@ -22,10 +22,13 @@ private:
     bool esHoja;
 
 public:
+    // Inicialización
     Nodo(int id, float w, float h, bool esHoja): id(id), w(w), h(h), esHoja(esHoja) {}
+    // Obtener valores (privados)
     float getAncho() const { return w; }
     float getAlto() const { return h; }
     bool esHoja() const {return esHoja;}
+    // Impresión
     void imprimirNodo() const {
         std::cout << "Nodo ID: " << id << ", Dimensiones: (" << w << ", " << h << "), Es hoja: " << (esHoja ? "Sí" : "No") << std::endl;
     }

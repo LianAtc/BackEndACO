@@ -26,12 +26,12 @@ private:
     float desperdicio;
 
 public:
+    // Inicialización
     Solucion(Base base) : base(base), desperdicio(0) {}
-
     void agregarPieza(Pieza pieza) {
         piezas.push_back(pieza);
     }
-
+    // Impresión
     void imprimirSolucion() const {
         std::cout << "Solución:" << std::endl;
         for (const auto& pieza : piezas) {

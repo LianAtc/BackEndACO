@@ -26,10 +26,13 @@ private:
     float feromonas;
 
 public:
+    // Inicialización
     Arista(Nodo inicio, Nodo final1, Nodo final2, float posicionCorte, std::string tipoCorte, float desperdicio, float feromonas)
         : nodoInicial(inicio), nodoFinal1(final1), nodoFinal2(final2), posicionCorte(posicionCorte), tipoCorte(tipoCorte), desperdicio(desperdicio), feromonas(feromonas) {}
+    // Obtener valores (privados)
     float getFeromonas() const { return feromonas; }
-    void setFeromonas(float newValue) { feromonas = newValue; }    
+    void setFeromonas(float newValue) { feromonas = newValue; }
+    // Impresión
     void imprimirArista() const {
         std::cout << "Arista entre Nodo ";
         nodoInicial.imprimirNodo();
@@ -37,10 +40,8 @@ public:
         nodoFinal1.imprimirNodo();
         std::cout << " o ";
         nodoFinal2.imprimirNodo();
-        std::cout << "Posición del corte: " << posicionCorte
-                  << ", Tipo de corte: " << tipoCorte
-                  << ", Desperdicio: " << desperdicio
-                  << ", Feromonas: " << feromonas << std::endl;
+        std::cout << "Posición del corte: " << posicionCorte<< ", Tipo de corte: " << tipoCorte
+                  << ", Desperdicio: " << desperdicio << ", Feromonas: " << feromonas << std::endl;
     }
 };
 

@@ -22,12 +22,16 @@ private:
     float w, h;
     bool r;
 public:
+    // Inicialización
     Pieza(int id, float x, float y, float w, float h, bool r) : id(id), x(x), y(y), w(w), h(h), r(r) {}
+    // Obtener valores (privados)
     int getId() const { return id; }
     std::pair<float, float> getPosition() const { return {x, y}; }
     float getAncho() const { return w; }
     float getAlto() const { return h; }
+    // Extras
     float area() const { return w * h; }
+    // Impresión
     void imprimirPieza() const {
         std::cout << "Pieza ID: " << id << ", Posición: (" << x << ", " << y
                   << "), Dimensiones: (" << w << ", " << h << "), Rotada: " << (r ? "Sí" : "No") << std::endl;

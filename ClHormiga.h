@@ -21,12 +21,12 @@ private:
     std::list<Pieza> piezasPendientes;
 
 public:
+    // Inicialización
     Hormiga(Solucion sol) : solucion(sol) {}
-
     void agregarPiezaPendiente(Pieza pieza) {
         piezasPendientes.push_back(pieza);
     }
-
+    // Impresión
     void imprimirHormiga() const {
         std::cout << "Hormiga - Solución: " << std::endl;
         solucion.imprimirSolucion();

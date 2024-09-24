@@ -21,14 +21,14 @@ private:
     std::vector<Arista> aristas;
 
 public:
+    // Inicialización
     void agregarNodo(Nodo nodo) {
         nodos.push_back(nodo);
     }
-
     void agregarArista(Arista arista) {
         aristas.push_back(arista);
     }
-
+    // Impresión
     void imprimirGrafo() const {
         std::cout << "Nodos en el Grafo:" << std::endl;
         for (const auto& nodo : nodos) {
