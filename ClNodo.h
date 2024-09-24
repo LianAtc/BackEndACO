@@ -27,7 +27,6 @@ public:
     // Obtener valores (privados)
     float getAncho() const { return w; }
     float getAlto() const { return h; }
-    bool esHoja() const {return esHoja;}
     // Impresión
     void imprimirNodo() const {
         std::cout << "Nodo ID: " << id << ", Dimensiones: (" << w << ", " << h << "), Es hoja: " << (esHoja ? "Sí" : "No") << std::endl;

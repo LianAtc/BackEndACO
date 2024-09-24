@@ -23,7 +23,7 @@ private:
     bool r;
 public:
     // Inicialización
-    Pieza(int id, float x, float y, float w, float h, bool r) : id(id), x(x), y(y), w(w), h(h), r(r) {}
+    Pieza(int id_, float w_, float h_) : id(id_), w(w_), h(h_), x(0), y(0), r(false) {}
     // Obtener valores (privados)
     int getId() const { return id; }
     std::pair<float, float> getPosition() const { return {x, y}; }
