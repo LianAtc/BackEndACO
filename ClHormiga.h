@@ -15,25 +15,26 @@
 #include <fstream>
 using namespace std;
 
+#include "ClGrafo.h"
+
 class Hormiga {
 private:
-    Solucion solucion;
-    std::list<Pieza> piezasPendientes;
-
+    list<Pieza> piezas; 
+    Base base;
+    float desperdicio;
 public:
-    // Inicialización
-    Hormiga(Solucion sol) : solucion(sol) {}
-    void agregarPiezaPendiente(Pieza pieza) {
-        piezasPendientes.push_back(pieza);
-    }
-    // Impresión
-    void imprimirHormiga() const {
-        std::cout << "Hormiga - Solución: " << std::endl;
-        solucion.imprimirSolucion();
-        std::cout << "Piezas pendientes:" << std::endl;
-        for (const auto& pieza : piezasPendientes) {
+    Hormiga(Base b) : base(b), desperdicio(0) {}
+    void agregarPieza(Pieza p) {piezas.push_back(p);}
+    float getDesperdicio() const {return desperdicio;}
+    void setDesperdicio(float d) {desperdicio = d;}
+    list<Pieza> getPiezas() const { return piezas; }
+    Base getBase() const { return base; }
+    void imprimirSolucion() const {
+        cout << "Solución con " << piezas.size() << " piezas cortadas:\n";
+        for (const auto& pieza : piezas) {
             pieza.imprimirPieza();
         }
+        cout << "Desperdicio total: " << desperdicio << "\n";
     }
 };
 

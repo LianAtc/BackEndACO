@@ -19,19 +19,30 @@ class Nodo {
 private:
     int id;
     float w, h;
+    float x, y;
     bool esHoja;
-
 public:
-    // Inicialización
-    Nodo(int id_, float w_, float h_) : id(id_), w(w_), h(h_), esHoja(true) {}
-    // Obtener valores (privados)
-    float getAncho() const { return w; }
-    float getAlto() const { return h; }
-    // Impresión
+    Nodo(int id, float w, float h) : id(id), w(w), h(h), x(0), y(0), esHoja(false) {}
+    int getId() const { return id; }
+    float getWidth() const { return w; }
+    float getHeight() const { return h; }
+    void setId(int nuevoId) {
+        id = nuevoId;
+    }
+    float getX() const { return x; }
+    float getY() const { return y; }
+    void setPosicion(float px, float py) {x = px; y = py;}
+    void setEsHoja(bool hoja) {esHoja = hoja;}
+    bool getEsHoja() const {return esHoja;}
+    void setDimensiones(float width, float height) {w = width; h = height;}
     void imprimirNodo() const {
-        std::cout << "Nodo ID: " << id << ", Dimensiones: (" << w << ", " << h << "), Es hoja: " << (esHoja ? "Sí" : "No") << std::endl;
+        cout << "Nodo ID: " << id
+             << " | Ancho x Alto: " << w << "x" << h 
+             << " | X, Y: (" << x << ", " << y << ")"
+             << " | Es Hoja: " << (esHoja ? "Sí" : "No") << endl;
     }
 };
+
 
 #endif /* CLNODO_H */
 

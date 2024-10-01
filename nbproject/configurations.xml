@@ -10,7 +10,6 @@
       <itemPath>ClHormiga.h</itemPath>
       <itemPath>ClNodo.h</itemPath>
       <itemPath>ClPieza.h</itemPath>
-      <itemPath>ClSolucion.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ResourceFiles"
                    displayName="Resource Files"
@@ -58,8 +57,6 @@
       </item>
       <item path="ClPieza.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="ClSolucion.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="main.cpp" ex="false" tool="1" flavor2="0">
       </item>
     </conf>
@@ -95,8 +92,6 @@
       <item path="ClNodo.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="ClPieza.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="ClSolucion.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="main.cpp" ex="false" tool="1" flavor2="0">
       </item>

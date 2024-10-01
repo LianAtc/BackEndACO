@@ -19,38 +19,61 @@ using namespace std;
 
 class Grafo {
 private:
-    std::vector<Nodo> nodos;
-    std::vector<Arista> aristas;
+    vector<Nodo> nodos;
+    vector<Arista> aristas;
+    int proximoId;  // Nueva variable para controlar el ID de los nodos
 
 public:
-    // Inicialización
+    Grafo() : proximoId(0) {}  // Inicializamos el ID en 0
+
     void agregarNodo(Nodo nodo) {
+        nodo.setId(proximoId++);  // Asignamos el siguiente ID disponible al nodo y lo incrementamos
         nodos.push_back(nodo);
     }
+
     void agregarArista(Arista arista) {
         aristas.push_back(arista);
     }
-    void inicializarGrafo(Base base) {
-        Nodo nodoInicial(0, base.area(), base.area());
-        agregarNodo(nodoInicial);
-    }
+
     void inicializarFeromonas(float valorInicial) {
-        for (Arista& arista : aristas) {
+        for (auto& arista : aristas) {
             arista.setFeromonas(valorInicial);
         }
     }
-    // Impresión
+    
+    void actualizarFeromonas(float rho) {
+        for (auto& arista : aristas) {
+            float nuevaFeromona = arista.getFeromonas() * (1 - rho);
+            arista.setFeromonas(nuevaFeromona);
+        }
+    }
+
+    void actualizarNodo(Nodo nodo) {
+        for (auto& n : nodos) {
+            if (n.getId() == nodo.getId()) {
+                n = nodo;
+                break;
+            }
+        }
+    }
+
     void imprimirGrafo() const {
-        std::cout << "Nodos en el Grafo:" << std::endl;
+        cout << "Nodos del grafo:" << endl;
         for (const auto& nodo : nodos) {
             nodo.imprimirNodo();
         }
-        std::cout << "Aristas en el Grafo:" << std::endl;
+
+        cout << "Aristas del grafo:" << endl;
         for (const auto& arista : aristas) {
             arista.imprimirArista();
         }
     }
+    
+    const vector<Nodo>& obtenerNodos() const {
+        return nodos;
+    }
 };
+
 
 #endif /* CLGRAFO_H */
 

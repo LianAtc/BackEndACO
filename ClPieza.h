@@ -22,21 +22,29 @@ private:
     float w, h;
     bool r;
 public:
-    // Inicialización
-    Pieza(int id_, float w_, float h_) : id(id_), w(w_), h(h_), x(0), y(0), r(false) {}
-    // Obtener valores (privados)
-    int getId() const { return id; }
-    std::pair<float, float> getPosition() const { return {x, y}; }
-    float getAncho() const { return w; }
-    float getAlto() const { return h; }
-    // Extras
-    float area() const { return w * h; }
-    // Impresión
+    Pieza(int id, float w, float h, float x = 0, float y = 0, bool r = false)
+        : id(id), w(w), h(h), x(x), y(y), r(r) {}
+    void rotarPieza() {r = !r;}
+    float getWidth() const {return r ? h : w;}
+    float getHeight() const {return r ? w : h;}    
+    float getX() const { return x; }
+    float getY() const { return y; }
+    void setPosicion(float px, float py) {
+        x = px;
+        y = py;
+    }
     void imprimirPieza() const {
-        std::cout << "Pieza ID: " << id << ", Posición: (" << x << ", " << y
-                  << "), Dimensiones: (" << w << ", " << h << "), Rotada: " << (r ? "Sí" : "No") << std::endl;
+        cout << "Pieza ID: " << id 
+                  << " | Posición: (" << x << ", " << y << ")"
+                  << " | Rotacion: (" << r << ")"
+                  << " | Dimensiones: (" << w << "x" << h << ")\n";
+    }
+    void imprimirPiezaRestante() const {
+        cout << "Pieza ID: " << id 
+                  << " | Dimensiones: (" << w << "x" << h << ")\n";
     }
 };
+
 
 #endif /* CLPIEZA_H */
 

@@ -15,28 +15,23 @@
 #include <fstream>
 using namespace std;
 
-#include "ClPieza.h"
-
 class Base {
 private:
-    float W, H;
-    std::vector<std::pair<float, float>> cortes;
+    float W, H; 
+    vector<pair<float, float>> cortes;
 public:
-    // Inicialización
     Base(float W, float H) : W(W), H(H) {}
-    void agregarCorte(float x, float y) {
-        cortes.emplace_back(x, y);
-    }
-    // Extras
     float area() const { return W * H; }
-    // Impresión
-    void imprimirCortes() const {
-        std::cout << "Cortes en la base (" << W << ", " << H << "):" << std::endl;
-        for (const auto& corte : cortes) {
-            std::cout << "Corte en: (" << corte.first << ", " << corte.second << ")" << std::endl;
-        }
+    void agregarCorte(float x, float y) {
+        cortes.push_back(make_pair(x, y));
     }
+    vector<pair<float, float>> getCortes() const {
+        return cortes;
+    }
+    float getWidth() const { return W; }
+    float getHeight() const { return H; }
 };
+
 
 #endif /* CLBASE_H */
 

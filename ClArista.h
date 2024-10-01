@@ -18,30 +18,32 @@ using namespace std;
 class Arista {
 private:
     Nodo nodoInicial;
-    Nodo nodoFinal1;
-    Nodo nodoFinal2;
+    Nodo nodoFinal1, nodoFinal2;
     float posicionCorte;
-    std::string tipoCorte;
+    string tipoCorte;
     float desperdicio;
     float feromonas;
-
 public:
-    // Inicialización
-    Arista(Nodo inicio, Nodo final1, Nodo final2, float posicionCorte, std::string tipoCorte, float desperdicio, float feromonas)
-        : nodoInicial(inicio), nodoFinal1(final1), nodoFinal2(final2), posicionCorte(posicionCorte), tipoCorte(tipoCorte), desperdicio(desperdicio), feromonas(feromonas) {}
-    // Obtener valores (privados)
+    Arista(Nodo ni, Nodo nf1, Nodo nf2, float posCorte, string tipo, float f) 
+        : nodoInicial(ni), nodoFinal1(nf1), nodoFinal2(nf2), posicionCorte(posCorte), tipoCorte(tipo), feromonas(f) {}
     float getFeromonas() const { return feromonas; }
-    void setFeromonas(float newValue) { feromonas = newValue; }
-    // Impresión
+    void setFeromonas(float valor) { feromonas = valor; }
+    void actualizarFeromonas(float delta) { feromonas += delta; }
+    Nodo getNodoFinal1() const { return nodoFinal1; }
+    Nodo getNodoFinal2() const { return nodoFinal2; }
+    string getTipoCorte() const { return tipoCorte; }
+    float getPosicionCorte() const {return posicionCorte;}
     void imprimirArista() const {
-        std::cout << "Arista entre Nodo ";
+        cout << "Arista entre nodos:" << endl;
+        cout << "Nodo Inicial: ";
         nodoInicial.imprimirNodo();
-        std::cout << " y Nodo ";
+        cout << "Nodo Final 1: ";
         nodoFinal1.imprimirNodo();
-        std::cout << " o ";
+        cout << "Nodo Final 2: ";
         nodoFinal2.imprimirNodo();
-        std::cout << "Posición del corte: " << posicionCorte<< ", Tipo de corte: " << tipoCorte
-                  << ", Desperdicio: " << desperdicio << ", Feromonas: " << feromonas << std::endl;
+        cout << "Posición de Corte: " << posicionCorte << endl;
+        cout << "Tipo de Corte: " << tipoCorte << endl;
+        cout << "Feromonas: " << feromonas << endl;
     }
 };
 
