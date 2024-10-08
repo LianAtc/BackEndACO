@@ -17,35 +17,26 @@ using namespace std;
 
 class Arista {
 private:
-    Nodo nodoInicial;
-    Nodo nodoFinal1, nodoFinal2;
-    float posicionCorte;
+    int idArista;
+    int nodoInicial,nodoFinal;
     string tipoCorte;
-    float desperdicio;
-    float feromonas;
+    float feromonas; 
+    float heuristica;
+
 public:
-    Arista(Nodo ni, Nodo nf1, Nodo nf2, float posCorte, string tipo, float f) 
-        : nodoInicial(ni), nodoFinal1(nf1), nodoFinal2(nf2), posicionCorte(posCorte), tipoCorte(tipo), feromonas(f) {}
+    Arista(int idArista, int nodoInicial, int nodoFinal, const string& tipoCorte, float feromonas, float heuristica)
+        : idArista(idArista), nodoInicial(nodoInicial), nodoFinal(nodoFinal), tipoCorte(tipoCorte), feromonas(feromonas), heuristica(heuristica) {}
+    int getID() const { return idArista; }
+    int getNodoInicial() const { return nodoInicial; }
+    int getNodoFinal() const { return nodoFinal; }
+    string getTipoCorte() const { return tipoCorte; } 
     float getFeromonas() const { return feromonas; }
-    void setFeromonas(float valor) { feromonas = valor; }
-    void actualizarFeromonas(float delta) { feromonas += delta; }
-    Nodo getNodoFinal1() const { return nodoFinal1; }
-    Nodo getNodoFinal2() const { return nodoFinal2; }
-    string getTipoCorte() const { return tipoCorte; }
-    float getPosicionCorte() const {return posicionCorte;}
-    void imprimirArista() const {
-        cout << "Arista entre nodos:" << endl;
-        cout << "Nodo Inicial: ";
-        nodoInicial.imprimirNodo();
-        cout << "Nodo Final 1: ";
-        nodoFinal1.imprimirNodo();
-        cout << "Nodo Final 2: ";
-        nodoFinal2.imprimirNodo();
-        cout << "Posición de Corte: " << posicionCorte << endl;
-        cout << "Tipo de Corte: " << tipoCorte << endl;
-        cout << "Feromonas: " << feromonas << endl;
-    }
+    float getHeuristica() const { return heuristica; }
+    void setFeromonas(float valor) {feromonas = valor;}
+    void agregarFeromonas(float delta) { feromonas += delta; }
+    //void evaporarFeromonas(float rho) { feromonas *= (1.0 - rho); }
 };
+
 
 #endif /* CLARISTA_H */
 

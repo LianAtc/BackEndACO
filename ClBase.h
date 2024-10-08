@@ -15,21 +15,54 @@
 #include <fstream>
 using namespace std;
 
-class Base {
+class Stock {
 private:
-    float W, H; 
-    vector<pair<float, float>> cortes;
+    int w, h;
+    Nodo* arbol;
+    list<Pieza> listaDefectos; // Solo contiene piezas defectuosas
+
 public:
-    Base(float W, float H) : W(W), H(H) {}
-    float area() const { return W * H; }
-    void agregarCorte(float x, float y) {
-        cortes.push_back(make_pair(x, y));
+    Stock(int w, int h) : w(w), h(h), arbol(nullptr) {}
+    Stock() : w(0), h(0), arbol(nullptr) {}
+
+    void agregarPieza(const Pieza& pieza) {
+        listaDefectos.push_back(pieza);
     }
-    vector<pair<float, float>> getCortes() const {
-        return cortes;
+    float getW() const { return w; }
+    float getH() const { return h; }
+    void setH(int nuevoAlto) {h = nuevoAlto;}
+    void imprimirPiezas() const {
+        cout << "Piezas en stock (" << w << "x" << h << "):\n";
+        for (const Pieza& pieza : listaDefectos) {
+            pieza.imprimirPieza();
+        }
     }
-    float getWidth() const { return W; }
-    float getHeight() const { return H; }
+    int calcularArea() const {return w * h;}
+
+    void generarDefecto() {
+        // Verifica si hay piezas en el stock
+        if (!listaDefectos.empty()) {
+            // Elegir un índice aleatorio
+            int index = rand() % listaDefectos.size();
+            auto it = listaDefectos.begin();
+            advance(it, index);
+            
+            // Crear una nueva pieza defectuosa
+            Pieza defecto(it->getID(), it->getX(), it->getY(), it->getW(), it->getH(), true);
+            
+            // Limpiar la lista de defectos y agregar la pieza defectuosa
+            listaDefectos.clear(); // Asegurarte de que sea el único defecto
+            listaDefectos.push_back(defecto);
+        }
+    }
+    
+    int getAncho() const { return w; }
+    int getAlto() const { return h; }
+    
+    void imprimirStock() const { // Método para imprimir detalles del stock
+        cout << "Stock de dimensiones: " << w << "x" << h << endl;
+        //cout << "Total de piezas en stock: " << listaDefectos.size() << endl;
+    }
 };
 
 

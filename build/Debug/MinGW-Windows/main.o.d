@@ -1,14 +1,12 @@
-build/Debug/MinGW-Windows/main.o: main.cpp ClBase.h ClPieza.h ClHormiga.h \
- ClGrafo.h ClNodo.h ClArista.h
+build/Debug/MinGW-Windows/main.o: main.cpp ClArista.h ClNodo.h ClGrafo.h \
+ ClPieza.h ClBase.h
 
-ClBase.h:
-
-ClPieza.h:
-
-ClHormiga.h:
-
-ClGrafo.h:
+ClArista.h:
 
 ClNodo.h:
 
-ClArista.h:
+ClGrafo.h:
+
+ClPieza.h:
+
+ClBase.h:

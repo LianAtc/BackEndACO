@@ -1,293 +1,333 @@
 #include <iostream>
 #include <vector>
 #include <list>
-#include <cmath>
-#include <cstdlib>   // for srand, rand
-#include <ctime>     // for time
+#include <cstdlib>
+#include <ctime>
 #include <algorithm>
-#include <tuple>
-#include <queue>
+#include <stack>
 #include <set>
 
-#include "ClBase.h"
-#include "ClPieza.h"
-
-#include "ClHormiga.h"
-
-#include "ClNodo.h"
 #include "ClArista.h"
+#include "ClNodo.h"
+#include "ClGrafo.h"
+
+#include "ClPieza.h"
+#include "ClBase.h"
 
 using namespace std;
 
-class Espacio {
-private:
-    vector<tuple<float, float, float, float>> espaciosLibres;
-public:
-    Espacio(float anchoBase, float altoBase) {
-        espaciosLibres.push_back(make_tuple(0, 0, anchoBase, altoBase));
-    }
-    bool hayEspacio(float anchoPieza, float altoPieza, float& xPos, float& yPos) {
-        for (auto& espacio : espaciosLibres) {
-            float x = get<0>(espacio);
-            float y = get<1>(espacio);
-            float w = get<2>(espacio);
-            float h = get<3>(espacio);
-            if (w >= anchoPieza && h >= altoPieza) {
-                xPos = x;
-                yPos = y;
-                actualizarEspacios(x, y, anchoPieza, altoPieza);
-                return true;
-            }
-        }
-        return false;
-    }
-    void actualizarEspacios(float xPos, float yPos, float anchoPieza, float altoPieza) {
-        vector<tuple<float, float, float, float>> nuevosEspacios;
-        for (auto& espacio : espaciosLibres) {
-            float x = get<0>(espacio);
-            float y = get<1>(espacio);
-            float w = get<2>(espacio);
-            float h = get<3>(espacio);
-            if (x == xPos && y == yPos) {
-                if (w > anchoPieza) {
-                    nuevosEspacios.push_back(make_tuple(xPos + anchoPieza, yPos, w - anchoPieza, altoPieza));
-                }
-                if (h > altoPieza) {
-                    nuevosEspacios.push_back(make_tuple(xPos, yPos + altoPieza, anchoPieza, h - altoPieza));
-                }
-                if (w > anchoPieza && h > altoPieza) {
-                    nuevosEspacios.push_back(make_tuple(xPos + anchoPieza, yPos + altoPieza, w - anchoPieza, h - altoPieza));
-                }
-            } else {
-                nuevosEspacios.push_back(espacio);
-            }
-        }
-        espaciosLibres = nuevosEspacios;
-    }
+int numPiezas = 40;
+vector<vector<int>> matriz(numPiezas, vector<int>(numPiezas, -1));
+vector<vector<int>> mejorMatriz(numPiezas, vector<int>(numPiezas, -1));
+int anchoMayor,altoMayor;
+double desTotal;
 
-    void imprimirEspaciosLibres() const {
-        cout << "Espacios libres actuales:\n";
-        for (const auto& espacio : espaciosLibres) {
-            cout << "Posición: (" << get<0>(espacio) << ", " << get<1>(espacio) 
-                      << "), Dimensiones: (" << get<2>(espacio) << "x" << get<3>(espacio) << ")\n";
-        }
-    }
-};
+double calcularHeuristica(vector<Pieza>& listaPiezas, const Stock& stock, const Pieza& pieza) {
+    double desperdicio;
 
-float calcularDesperdicio(const Base& base, const list<Pieza>& piezasCortadas) {
-    float areaCortada = 0.0;
-    for (const Pieza& p : piezasCortadas) {
-        areaCortada += p.getWidth() * p.getHeight();
+    if(pieza.getH()>stock.getH()) return -1;
+    if(anchoMayor+pieza.getW()<= stock.getW()){
+        if(altoMayor>pieza.getH()){
+            desperdicio = (((altoMayor)*(anchoMayor+pieza.getW())) - ((anchoMayor*altoMayor)+(pieza.getW()*pieza.getH()))) 
+                    / ((altoMayor)*(anchoMayor+pieza.getW()));
+        }
+        else{
+            desperdicio = (((pieza.getH())*(anchoMayor+pieza.getW()) - (anchoMayor*altoMayor)+(pieza.getW()*pieza.getH())))
+                    / ((pieza.getH())*(anchoMayor+pieza.getW()));
+        }
+    }else{
+        return -1;
     }
-    float areaBase = base.getWidth() * base.getHeight();
-    return areaBase - areaCortada;
+    
+    return desperdicio;
 }
 
-void imprimirCola(queue<Nodo> nodosPorCortar) {
-    while (!nodosPorCortar.empty()) {
-        Nodo nodoActual = nodosPorCortar.front();
-        nodoActual.imprimirNodo();
-        nodosPorCortar.pop();
+const Pieza* buscarPiezaPorId(int id, const vector<Pieza>& listaPiezas) {
+    for (const auto& pieza : listaPiezas) {
+        if (pieza.getID() == id) {
+            return &pieza; // Devolver la pieza si se encuentra
+        }
     }
+    return nullptr; // Si no se encuentra, devolver nullptr
 }
 
-float CalcularHeuristica(Nodo& nodoActual, const std::list<Pieza>& piezasRestantes) {
-    float areaNodo = nodoActual.getWidth() * nodoActual.getHeight();
-    float menorDesperdicio = areaNodo;
-    Pieza* mejorPieza = nullptr;
-    bool rotacion = false;
+double calcularDesperdicio(vector<Pieza>& listaPiezas, vector<vector<int>>& matriz, vector<Stock>& listaStocks) {
+    double areaTotalPiezas = 0;
 
-    for (const Pieza& pieza : piezasRestantes) {
-        float areaPieza = pieza.getWidth() * pieza.getHeight();
-        bool encajaSinRotar = (pieza.getWidth() <= nodoActual.getWidth() && pieza.getHeight() <= nodoActual.getHeight());
-        bool encajaRotada = (pieza.getHeight() <= nodoActual.getWidth() && pieza.getWidth() <= nodoActual.getHeight());
-
-        if (encajaSinRotar) {
-            float desperdicio = areaNodo - areaPieza; 
-            if (desperdicio < menorDesperdicio) {
-                menorDesperdicio = desperdicio;
-                mejorPieza = const_cast<Pieza*>(&pieza);
-                rotacion = false;
-            }
-        }
-        if (encajaRotada) {
-            float desperdicio = areaNodo - areaPieza;
-            if (desperdicio < menorDesperdicio) {
-                menorDesperdicio = desperdicio;
-                mejorPieza = const_cast<Pieza*>(&pieza);
-                rotacion = true;
+    // Recorrer la matriz y calcular el área de las piezas
+    for (const auto& fila : matriz) {
+        for (int id : fila) {
+            const Pieza* pieza = buscarPiezaPorId(id, listaPiezas);
+            if (pieza != nullptr) {
+                areaTotalPiezas += pieza->calcularArea();
             }
         }
     }
-    if (mejorPieza != nullptr) {
-        if (rotacion) {
-            mejorPieza->rotarPieza();
-        }
-        nodoActual.setEsHoja(true);
-    }
-    return menorDesperdicio;
+    double areaStock = listaStocks[0].calcularArea();
+    double desperdicio = areaStock - areaTotalPiezas;
+    
+    return desperdicio;
 }
 
-Hormiga ConstSol(Grafo& grafo, Nodo& nodoActual, list<Pieza>& piezasRestantes, float alpha, float beta, Base& base, Espacio& espacioLibre) {
-    Hormiga sol(base);
-    queue<Nodo> nodosPorCortar;
-    nodosPorCortar.push(nodoActual);
-    float desperdicioTotal = 0;
+void ConstSol(float alpha, float beta, float rho, int tol, vector<Pieza>& listaPiezas2, vector<Stock>& listaStocks2, Grafo grafo) {
+    Stock solucion;
+    int numPiezaLista=0,indiceAleatorio=0,entra=0,menorH=100,a,b;
+    int piezaEscogida,i=0,j=0,piezaPasada,ancho,alto,intentos=0,indice;
+    double feromonas,heuristica,probabillidad=100,mProb=0;
+    vector<int> indicePiezaEscogida;
+    
+    vector<Pieza> listaPiezas = listaPiezas2;
+    vector<Stock> listaStocks = listaStocks2;
+    
+    cout<<"Imprimir piezas:"<<endl;
+    for (const Pieza& pieza : listaPiezas) {
+        pieza.imprimirPieza();
+    }
+    
+    cout<<"Imprimir stock: "<<endl;
+    listaStocks[0].imprimirPiezas();
+    
+    for (const Pieza& pieza2 : listaPiezas) {
+        if (listaPiezas.empty()) break;
+        entra=0;
+        while(entra==0 && intentos < (numPiezas-1)){
+            indiceAleatorio = rand() % (numPiezas-1); // Random por numero de piezas
+            // Obtenemos el indice del id que queremos
+            auto it = find_if(listaPiezas.begin(), listaPiezas.end(), 
+                          [indiceAleatorio](const Pieza& pieza) {
+                              return pieza.getID() == indiceAleatorio;
+                          });
 
-    while (!piezasRestantes.empty() && !nodosPorCortar.empty()) {
-        nodoActual = nodosPorCortar.front();
-        nodosPorCortar.pop();
-
-        bool nodoMuyPequeno = true;
-        for (const auto& pieza : piezasRestantes) {
-            if ((nodoActual.getWidth() >= pieza.getWidth() && nodoActual.getHeight() >= pieza.getHeight()) ||
-                (nodoActual.getWidth() >= pieza.getHeight() && nodoActual.getHeight() >= pieza.getWidth())) {
-                nodoMuyPequeno = false; 
-                break;
+            if (it != listaPiezas.end()) {
+                indice = distance(listaPiezas.begin(), it);
+                listaPiezas[indice].imprimirPieza();
             }
-        }
-
-        if (nodoMuyPequeno) {
-            float areaNodo = nodoActual.getWidth() * nodoActual.getHeight();
-            desperdicioTotal += areaNodo;
-            continue;
-        }
-
-        bool subpiezaEsHoja = false;
-        auto it = piezasRestantes.begin();
-        while (it != piezasRestantes.end()) {
-            float xPos, yPos;
-            bool piezaRotada = false;
-
-            if (nodoActual.getWidth() == it->getWidth() && nodoActual.getHeight() == it->getHeight()) {
-                piezaRotada = false;
-            } 
-            else if (nodoActual.getWidth() == it->getHeight() && nodoActual.getHeight() == it->getWidth()) {
-                piezaRotada = true;
-                it->rotarPieza();
-            }
-            if ((nodoActual.getWidth() == it->getWidth() && nodoActual.getHeight() == it->getHeight()) ||
-                (nodoActual.getWidth() == it->getHeight() && nodoActual.getHeight() == it->getWidth())) {
-                
-                if (espacioLibre.hayEspacio(it->getWidth(), it->getHeight(), xPos, yPos)) {
-                    it->setPosicion(xPos, yPos);
-                    sol.agregarPieza(*it);
-                    nodoActual.setEsHoja(true);
-                    grafo.actualizarNodo(nodoActual);
-                    it = piezasRestantes.erase(it);
-                    subpiezaEsHoja = true;
-                    break;
-                }
-            }
-            ++it;
-        }
-        if (!subpiezaEsHoja) {
-            Nodo subpieza1(nodoActual.getId() + 1, nodoActual.getWidth() / 2, nodoActual.getHeight());
-            Nodo subpieza2(nodoActual.getId() + 2, nodoActual.getWidth() - subpieza1.getWidth(), nodoActual.getHeight());
             
-            grafo.agregarNodo(subpieza1);
-            grafo.agregarNodo(subpieza2);
-            grafo.agregarArista(Arista(nodoActual, subpieza1, subpieza2, nodoActual.getWidth() / 2, "vertical", 0.1f));  // Definir la arista para el corte
-            
-            nodosPorCortar.push(subpieza1);
-            nodosPorCortar.push(subpieza2);
-        }
-    }
-    desperdicioTotal += calcularDesperdicio(sol.getBase(), sol.getPiezas());
-    sol.setDesperdicio(desperdicioTotal);
-    cout << "Desperdicio total: " << desperdicioTotal << endl;
-
-    cout << "Grafo de esta solucion: " << endl;
-    grafo.imprimirGrafo();
-    return sol;
-}
-
-bool nodosPequenos(const Grafo& grafo, const vector<Pieza>& piezas) {
-    list<Pieza> piezasRestantes(piezas.begin(), piezas.end());
-
-    for (const auto& nodo : grafo.obtenerNodos()) {
-        for (const auto& pieza : piezasRestantes) {
-            if (nodo.getWidth() >= pieza.getWidth() && nodo.getHeight() >= pieza.getHeight()) {
-                return false;
+            if (find(indicePiezaEscogida.begin(), indicePiezaEscogida.end(), indiceAleatorio) == indicePiezaEscogida.end()) {
+                if (listaPiezas[indice].getW() <= listaStocks[0].getW() && listaPiezas[indice].getH() <= listaStocks[0].getH()) {
+                    entra=1;
+                    indicePiezaEscogida.push_back(indiceAleatorio);
+                }else{
+                    entra=0;
+                }
             }
+            intentos++;
         }
+        if(entra==0) break;
+        intentos=0;
+        // Impresión de nodo elegido
+        for(int i=0; i<100;i++) cout<<"=";
+        cout<<endl;
+        cout<< "Pieza Aleatoria:" <<endl;
+        cout<< "Indice : "<< indiceAleatorio <<endl;
+                  
+        // Defino la longitud más grande a cortar en guillotina
+        anchoMayor = listaPiezas[indice].getW();
+        altoMayor = listaPiezas[indice].getH();
+        
+        cout << "Ancho x Alto:" << anchoMayor << " , " << altoMayor<<endl;
+        for(int i=0; i<100;i++) cout<<"=";
+        cout<<endl;
+
+        // Elimino pieza inicial
+        auto it2 = std::find_if(listaPiezas.begin(), listaPiezas.end(), [indiceAleatorio](const Pieza& pieza) {
+            return pieza.getID() == indiceAleatorio;
+        });
+        if (it2 != listaPiezas.end()) {
+            listaPiezas.erase(it2);
+        }
+        matriz[i][j]=indiceAleatorio;
+        i++;
+        piezaPasada = indiceAleatorio;
+        for (const Pieza& pieza2 : listaPiezas) { //Encajo pieza
+            for(int i=0; i<100;i++) cout<<"=";
+            cout<<endl;
+            cout<< "Piezas restantes a probar: "<<endl;
+            for (const Pieza& pieza : listaPiezas) { // Escoger una pieza
+                feromonas= grafo.obtenerFeromonas(indiceAleatorio,pieza.getID());
+                // Escojo la posibilidad de la mejor pieza a entrar
+                heuristica = calcularHeuristica(listaPiezas,listaStocks[0],pieza);
+                probabillidad = (feromonas*alpha)+((1/heuristica)*beta);
+                if(mProb<=probabillidad){    
+                    mProb = probabillidad;
+                    piezaEscogida = pieza.getID();
+                    alto = pieza.getH();
+                    ancho = pieza.getW();
+                }
+                if( heuristica != -1 ) menorH = heuristica;
+                grafo.aumentarFeromonas(piezaPasada,pieza.getID(),0.001);
+                pieza.imprimirPieza();
+            }
+            for(int i=0; i<100;i++) cout<<"=";
+            cout<<endl;
+            if (menorH == -1 || menorH == 100) break;
+            matriz[i][j]=piezaEscogida;
+            cout<< "Pieza Encajada: "<< piezaEscogida<< " ("<<alto<<"x"<<ancho<<")" <<endl;
+            
+            i++;
+
+            if(altoMayor>alto){
+                anchoMayor += ancho;
+            }else{
+                anchoMayor += ancho;
+                altoMayor = alto;
+            }
+            
+            cout<< "Espacio: " << altoMayor << " , " << anchoMayor<<endl;
+            cout<< "Ancho y Alto Mayor: " << anchoMayor << " , "<<altoMayor<<endl;
+
+            indicePiezaEscogida.push_back(piezaEscogida);
+            piezaPasada = piezaEscogida;
+            
+            // Elimino pieza escogida
+            auto it = std::find_if(listaPiezas.begin(), listaPiezas.end(), [piezaEscogida](const Pieza& pieza) {
+                return pieza.getID() == piezaEscogida;
+            });
+            if (it != listaPiezas.end()) {
+                listaPiezas.erase(it);
+            }
+            
+            //desTotal+=heuristica;
+            mProb=0;piezaEscogida=-1;menorH=100;
+        }
+        for(int i=0; i<100;i++) cout<<"=";
+        cout<<endl;
+        cout<<"Cambio de nivel"<<endl;
+        i=0;
+        listaStocks[0].setH(listaStocks[0].getH()-altoMayor); // Actualizo el  nuevo alto
+        cout<<"Imprimir stock: "<<endl;
+        listaStocks[0].imprimirPiezas();
+        for(int i=0; i<100;i++) cout<<"=";
+        cout<<endl;
+        altoMayor=0;
+        anchoMayor=0;
+        j++;
     }
-    return true;
+    desTotal = calcularDesperdicio(listaPiezas2,matriz,listaStocks2);
+    cout<< "Desperdicio: "<< desTotal <<endl;
 }
 
-void AlgoritmoACO(Base& base, vector<Pieza>& piezas, int nHormigas, int maxIter, float alpha, float beta, float rho, int tol) {
-    Grafo grafo;
-    Nodo nodoInicial(0, base.getWidth(), base.getHeight());
-    grafo.agregarNodo(nodoInicial);
-    grafo.inicializarFeromonas(0.1);
-    Espacio espacioLibre(base.getWidth(), base.getHeight());
-    Hormiga mejorSol(base);
-    int sinMej = 0;
-    cout << "Iniciando algoritmo ACO..." << endl;
+void AlgoritmoACO(int nHormigas, int maxIter, float alpha, float beta, float rho, int tol, vector<Pieza>& listaPiezas, vector<Stock>& listaStocks, Grafo grafo) {
+    Stock Solucion,mejorSolucion;
+    int sinMej = 0, mejorDesp=100000,i=0,j=0; // Actualizar a 100
+    
+    //Inicializo feromonas
+    grafo.inicializarFeromonas(rho);
     
     for (int iter = 0; iter < maxIter && sinMej < tol; ++iter) {
-        vector<Hormiga> soluciones;
         for (int h = 0; h < nHormigas; ++h) {
-            list<Pieza> piezasRestantes(piezas.begin(), piezas.end());
-            Hormiga sol = ConstSol(grafo, nodoInicial, piezasRestantes, alpha, beta, base, espacioLibre);
-            soluciones.push_back(sol);
-            if (nodosPequenos(grafo, piezas)) {
-                break;
+            cout << "Iniciando algoritmo ACO con " << h+1 << " hormigas..." << endl;
+            ConstSol(alpha,beta,rho,tol,listaPiezas,listaStocks,grafo);
+            if (mejorDesp>desTotal) { // Que genero menos, al revez
+                mejorDesp = desTotal;
+                for (int i = 0; i < (numPiezas-1); ++i) {
+                    for (int j = 0; j < (numPiezas-1); ++j) {
+                        mejorMatriz[i][j] = matriz[i][j];
+                    }
+                }
+                sinMej = 0;
+            } else {
+                sinMej++;
             }
+            for (int i = 0; i < (numPiezas-1); ++i) {
+                for (int j = 0; j < (numPiezas-1); ++j) {
+                    matriz[i][j] = -1;
+                }
+            }
+            // Cada vez que encuentro una solucion evaporo las feromonas
+            grafo.evaporarFeromonas(rho);
         }
-        Hormiga mejorIter = *min_element(soluciones.begin(), soluciones.end(), [](const Hormiga& a, const Hormiga& b) {
-            return a.getDesperdicio() < b.getDesperdicio();
-        });
-        
-        if (mejorIter.getDesperdicio() < mejorSol.getDesperdicio()) {
-            mejorSol = mejorIter;
-            mejorIter.imprimirSolucion();
-            sinMej = 0;
-        } else {
-            sinMej++;
-        }
-
-        grafo.actualizarFeromonas(rho);
-        if(iter == 0) mejorSol = mejorIter;
     }
-    cout << "Imprimiendo mejor solución..." << endl;
-    mejorSol.imprimirSolucion();
-    cout << "Imprimiendo Grafo" << endl;
-    grafo.imprimirGrafo();
+    
+    cout<<"Solucion"<<endl;
+    for (int j = 0; j < (numPiezas-1); ++j) {
+        for (int i = 0; i < (numPiezas-1); ++i) {
+            if(mejorMatriz[i][j] == -1) break;
+            cout << mejorMatriz[i][j] << " "; // Debe imprimir mejor matriz, no matriz
+            mejorMatriz[i][j] = -1;
+        }
+        cout << endl;  // Salto de línea después de cada fila
+    }
+    cout<<"Menor Desperdicio: "<< mejorDesp <<endl;
+}
+
+vector<Pieza> generarListaPiezas(int cantidad) {
+    vector<Pieza> listaPiezas;
+    for (int i = 0; i < cantidad; ++i) {
+        float x = 0;
+        float y = 0;
+        float w = (rand() % 50) + 30;
+        float h = (rand() % 20) + 10;
+        bool rotada = 0;
+        
+        Pieza p(i, x, y, w, h, rotada);
+        listaPiezas.push_back(p);
+    }
+    return listaPiezas;
+}
+
+vector<Stock> generarListaStocks(int cantidad) {
+    vector<Stock> listaStocks;
+    for (int i = 0; i < cantidad; ++i) {
+        int w = (rand() % 200) + 150;
+        int h = (rand() % 100) + 50;
+        Stock s(w, h);
+        listaStocks.push_back(s);
+    }
+    return listaStocks;
+}
+
+bool compararPiezas(const Pieza& a, const Pieza& b) {
+    return (a.getH() >b.getH());
+}
+
+void ordenarPiezas(vector<Pieza>& listaPiezas) {
+    sort(listaPiezas.begin(), listaPiezas.end(), compararPiezas);
+}
+
+bool compararStocks(const Stock& a, const Stock& b) {
+    return (a.getAncho() * a.getAlto()) > (b.getAncho() * b.getAlto());
+}
+
+void ordenarStocks(vector<Stock>& stocks) {
+    sort(stocks.begin(), stocks.end(), compararStocks);
 }
 
 int main() {
     srand(static_cast<unsigned>(time(0)));
-    Base base(200, 200);
-    Espacio espacioLibre(base.getWidth(), base.getHeight());
-    
-    vector<Pieza> piezas = { 
-        Pieza(1, 50, 200),
-        Pieza(2, 50, 200),
-        Pieza(3, 200, 50), 
-        Pieza(4, 200, 50),
-        Pieza(5, 50, 50),
-        Pieza(6, 40, 40),
-        Pieza(7, 30, 30),
-        Pieza(8, 60, 60),
-        Pieza(9, 80, 80),
-        Pieza(10, 90, 45),
-        Pieza(11, 20, 20),
-        Pieza(12, 70, 50),
-        Pieza(13, 35, 35),
-        Pieza(14, 45, 15),
-        Pieza(15, 85, 85)
-    };
-
-
-    int nHormigas = 1;
-    int maxIter = 1;
-    float alpha = 1.0, beta = 2.0, rho = 0.1;
+    int nHormigas = 100;
+    int maxIter = 100;
+    float alpha = 1.0, beta = 5, rho = 0.4;
     int tol = 1;
+    
+    vector<Pieza> listaPiezas = generarListaPiezas(numPiezas);
+    vector<Stock> listaStocks = generarListaStocks(1);
+    
+    // Grafo
+    Grafo grafo;
+    // Agregar nodos al grafo
+    for (int i = 0; i < numPiezas; ++i) {
+        Nodo* nodo = new Nodo(to_string(i));
+        nodo->id = i;
+        grafo.agregarNodo(nodo);
+    }
+    // Generar grafo completo
+    grafo.generarGrafoCompleto();
+    // Imprimir las conexiones del grafo
+    //grafo.imprimirConexionesCompacto();
+     
+    sort(listaStocks.begin(), listaStocks.end(), compararStocks);
+    sort(listaPiezas.begin(), listaPiezas.end(), compararPiezas);
 
-    cout << "Iniciando algoritmo ACO con " << nHormigas << " hormigas..." << endl;
-    AlgoritmoACO(base, piezas, nHormigas, maxIter, alpha, beta, rho, tol);
+    AlgoritmoACO(nHormigas, maxIter, alpha, beta, rho, tol, listaPiezas, listaStocks, grafo);
     cout << "Ejecución del algoritmo ACO finalizada." << endl;
     
+    cout << "Lista de Piezas:\n";
+    for (const Pieza& pieza : listaPiezas) {
+        pieza.imprimirPieza();
+    }
+    cout << "\nLista de Stock:\n";
+    listaStocks[0].imprimirStock();
+        
     return 0;
 }
