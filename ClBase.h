@@ -17,7 +17,7 @@ using namespace std;
 
 class Stock {
 private:
-    int w, h;
+    float w, h;
     Nodo* arbol;
     list<Pieza> listaDefectos; // Solo contiene piezas defectuosas
 
@@ -37,7 +37,7 @@ public:
             pieza.imprimirPieza();
         }
     }
-    int calcularArea() const {return w * h;}
+    float calcularArea() const {return w * h;}
 
     void generarDefecto() {
         // Verifica si hay piezas en el stock
@@ -55,9 +55,6 @@ public:
             listaDefectos.push_back(defecto);
         }
     }
-    
-    int getAncho() const { return w; }
-    int getAlto() const { return h; }
     
     void imprimirStock() const { // Método para imprimir detalles del stock
         cout << "Stock de dimensiones: " << w << "x" << h << endl;

@@ -18,25 +18,32 @@ using namespace std;
 
 int numPiezas = 40;
 vector<vector<int>> matriz(numPiezas, vector<int>(numPiezas, -1));
-vector<vector<int>> mejorMatriz(numPiezas, vector<int>(numPiezas, -1));
-int anchoMayor,altoMayor;
+vector<vector<int>> solucion(numPiezas, vector<int>(numPiezas, -1));
+float anchoMayor,altoMayor;
 double desTotal;
 
-double calcularHeuristica(vector<Pieza>& listaPiezas, const Stock& stock, const Pieza& pieza) {
+double calcularHeuristica(const Stock& stock, const Pieza& pieza) {
     double desperdicio;
 
-    if(pieza.getH()>stock.getH()) return -1;
+    if(pieza.getH()>stock.getH()) return -1; // Si no entra de altura -1
+    if(anchoMayor+pieza.getW()>stock.getW()) return -1; // Si es muy ancho no entra -1
+    // Uso de piezas del mismo tamaño de alto que entren
+    if(pieza.getH()== altoMayor && (pieza.getW()+anchoMayor <= stock.getW())) return -2;
     if(anchoMayor+pieza.getW()<= stock.getW()){
         if(altoMayor>pieza.getH()){
-            desperdicio = (((altoMayor)*(anchoMayor+pieza.getW())) - ((anchoMayor*altoMayor)+(pieza.getW()*pieza.getH()))) 
-                    / ((altoMayor)*(anchoMayor+pieza.getW()));
+            desperdicio = (((altoMayor)*(anchoMayor+pieza.getW())) 
+                    - ((anchoMayor*altoMayor)+
+                    (pieza.getW()*pieza.getH()))) 
+                    / ((altoMayor)*(anchoMayor+
+                    pieza.getW()));
         }
         else{
-            desperdicio = (((pieza.getH())*(anchoMayor+pieza.getW()) - (anchoMayor*altoMayor)+(pieza.getW()*pieza.getH())))
-                    / ((pieza.getH())*(anchoMayor+pieza.getW()));
+            desperdicio = (((pieza.getH())*(anchoMayor+pieza.getW()) 
+                    - (anchoMayor*altoMayor)+
+                    (pieza.getW()* pieza.getH())))
+                    / ((pieza.getH())*
+                    (anchoMayor+pieza.getW()));
         }
-    }else{
-        return -1;
     }
     
     return desperdicio;
@@ -71,8 +78,9 @@ double calcularDesperdicio(vector<Pieza>& listaPiezas, vector<vector<int>>& matr
 
 void ConstSol(float alpha, float beta, float rho, int tol, vector<Pieza>& listaPiezas2, vector<Stock>& listaStocks2, Grafo grafo) {
     Stock solucion;
-    int numPiezaLista=0,indiceAleatorio=0,entra=0,menorH=100,a,b;
-    int piezaEscogida,i=0,j=0,piezaPasada,ancho,alto,intentos=0,indice;
+    int numPiezaLista=0,indiceAleatorio=0,entra=0,a,b;
+    float ancho,alto,menorH=100;
+    int piezaEscogida,i=0,j=0,piezaPasada,intentos=0,indice;
     double feromonas,heuristica,probabillidad=100,mProb=0;
     vector<int> indicePiezaEscogida;
     
@@ -146,7 +154,7 @@ void ConstSol(float alpha, float beta, float rho, int tol, vector<Pieza>& listaP
             for (const Pieza& pieza : listaPiezas) { // Escoger una pieza
                 feromonas= grafo.obtenerFeromonas(indiceAleatorio,pieza.getID());
                 // Escojo la posibilidad de la mejor pieza a entrar
-                heuristica = calcularHeuristica(listaPiezas,listaStocks[0],pieza);
+                heuristica = calcularHeuristica(listaStocks[0],pieza);
                 probabillidad = (feromonas*alpha)+((1/heuristica)*beta);
                 if(mProb<=probabillidad){    
                     mProb = probabillidad;
@@ -157,6 +165,7 @@ void ConstSol(float alpha, float beta, float rho, int tol, vector<Pieza>& listaP
                 if( heuristica != -1 ) menorH = heuristica;
                 grafo.aumentarFeromonas(piezaPasada,pieza.getID(),0.001);
                 pieza.imprimirPieza();
+                if( heuristica == -2) break;
             }
             for(int i=0; i<100;i++) cout<<"=";
             cout<<endl;
@@ -222,7 +231,7 @@ void AlgoritmoACO(int nHormigas, int maxIter, float alpha, float beta, float rho
                 mejorDesp = desTotal;
                 for (int i = 0; i < (numPiezas-1); ++i) {
                     for (int j = 0; j < (numPiezas-1); ++j) {
-                        mejorMatriz[i][j] = matriz[i][j];
+                        solucion[i][j] = matriz[i][j];
                     }
                 }
                 sinMej = 0;
@@ -242,9 +251,9 @@ void AlgoritmoACO(int nHormigas, int maxIter, float alpha, float beta, float rho
     cout<<"Solucion"<<endl;
     for (int j = 0; j < (numPiezas-1); ++j) {
         for (int i = 0; i < (numPiezas-1); ++i) {
-            if(mejorMatriz[i][j] == -1) break;
-            cout << mejorMatriz[i][j] << " "; // Debe imprimir mejor matriz, no matriz
-            mejorMatriz[i][j] = -1;
+            if(solucion[i][j] == -1) break;
+            cout << solucion[i][j] << " "; // Debe imprimir mejor matriz, no matriz
+            solucion[i][j] = -1;
         }
         cout << endl;  // Salto de línea después de cada fila
     }
@@ -253,12 +262,19 @@ void AlgoritmoACO(int nHormigas, int maxIter, float alpha, float beta, float rho
 
 vector<Pieza> generarListaPiezas(int cantidad) {
     vector<Pieza> listaPiezas;
+    vector<pair<float, float>> medidasDisponibles = {
+        {45, 8.6}, {15, 7.5}, {40, 25.0}, {40, 8.0}
+    };
+
     for (int i = 0; i < cantidad; ++i) {
         float x = 0;
         float y = 0;
-        float w = (rand() % 50) + 30;
-        float h = (rand() % 20) + 10;
         bool rotada = 0;
+
+        // Elegir un par de medidas aleatoriamente
+        int indiceAleatorio = rand() % medidasDisponibles.size();
+        float w = medidasDisponibles[indiceAleatorio].first;
+        float h = medidasDisponibles[indiceAleatorio].second;
         
         Pieza p(i, x, y, w, h, rotada);
         listaPiezas.push_back(p);
@@ -268,12 +284,26 @@ vector<Pieza> generarListaPiezas(int cantidad) {
 
 vector<Stock> generarListaStocks(int cantidad) {
     vector<Stock> listaStocks;
+    
+    // Inicializar la semilla aleatoria
+    srand(static_cast<unsigned int>(time(0)));
+
     for (int i = 0; i < cantidad; ++i) {
-        int w = (rand() % 200) + 150;
-        int h = (rand() % 100) + 50;
-        Stock s(w, h);
-        listaStocks.push_back(s);
+        int w, h;
+        
+        // Elegir aleatoriamente entre las dos opciones de tamaño
+        if (rand() % 2 == 0) {
+            w = 60;
+            h = 60;
+        } else {
+            w = 45;
+            h = 45;
+        }
+        
+        Stock s(w, h); // Crear el objeto Stock con las dimensiones seleccionadas
+        listaStocks.push_back(s); // Agregar a la lista
     }
+    
     return listaStocks;
 }
 
@@ -286,7 +316,7 @@ void ordenarPiezas(vector<Pieza>& listaPiezas) {
 }
 
 bool compararStocks(const Stock& a, const Stock& b) {
-    return (a.getAncho() * a.getAlto()) > (b.getAncho() * b.getAlto());
+    return (a.getW() * a.getH()) > (b.getW() * b.getH());
 }
 
 void ordenarStocks(vector<Stock>& stocks) {
@@ -315,9 +345,6 @@ int main() {
     grafo.generarGrafoCompleto();
     // Imprimir las conexiones del grafo
     //grafo.imprimirConexionesCompacto();
-     
-    sort(listaStocks.begin(), listaStocks.end(), compararStocks);
-    sort(listaPiezas.begin(), listaPiezas.end(), compararPiezas);
 
     AlgoritmoACO(nHormigas, maxIter, alpha, beta, rho, tol, listaPiezas, listaStocks, grafo);
     cout << "Ejecución del algoritmo ACO finalizada." << endl;
