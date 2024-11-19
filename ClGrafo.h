@@ -40,6 +40,10 @@ public:
     bool existeConexion(int nodo1, int nodo2) {
         return conexiones.find({nodo1, nodo2}) != conexiones.end();
     }
+    
+    vector<Arista*> obtenerAristas() const {
+        return aristas;
+    }
 
     // Generar un grafo completo donde cada nodo está conectado a todos los demás
     void generarGrafoCompleto() {

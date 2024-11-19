@@ -38,6 +38,10 @@ public:
     float getY() const { return y; }
     float getW() const { return w; }
     float getH() const { return h; }
+    void rotarPieza() { 
+        swap(w, h); 
+        r = !r; 
+    }
     bool getRot() const { return r; }
 };
 
