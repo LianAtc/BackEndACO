@@ -19,7 +19,7 @@
 
 using namespace std;
 
-int numPiezas = 100;
+int numPiezas = 90;
 vector<Pieza> listaPiezasResultante;
 vector<Pieza> solucion;
 float anchoMayor,altoMayor;
@@ -43,6 +43,36 @@ vector<Pieza> generarListaPiezas(int cantidad) {
         {25, 8.0}, {45, 10.5},
         {55, 11.5}, {30, 20.0},
         {60, 15.0}, {35, 7.5},
+        {20, 5.0}, {25, 10.0},
+        {45, 8.6}, {15, 7.5}, 
+        {40, 25.0}, {40, 8.0},
+        {40, 20.0}, {30, 15.0},
+        {20, 10.0}, {40, 10.0},
+        {30, 7.5}, {25, 12.0},
+        {50, 9.5}, {35, 8.0},
+        {60, 10.0}, {45, 12.5},
+        {25, 5.0}, {55, 15.0},
+        {65, 20.0}, {20, 7.0},
+        {30, 5.5}, {40, 6.5},
+        {50, 12.0}, {35, 10.0},
+        {25, 8.0}, {45, 10.5},
+        {55, 11.5}, {30, 20.0},
+        {60, 15.0}, {35, 7.5},
+        {20, 5.0}, {25, 10.0},
+        {45, 8.6}, {15, 7.5}, 
+        {40, 25.0}, {40, 8.0},
+        {40, 20.0}, {30, 15.0},
+        {20, 10.0}, {40, 10.0},
+        {30, 7.5}, {25, 12.0},
+        {50, 9.5}, {35, 8.0},
+        {60, 10.0}, {45, 12.5},
+        {25, 5.0}, {55, 15.0},
+        {65, 20.0}, {20, 7.0},
+        {30, 5.5}, {40, 6.5},
+        {50, 12.0}, {35, 10.0},
+        {25, 8.0}, {45, 10.5},
+        {55, 11.5}, {30, 20.0},
+        {60, 15.0}, {35, 7.5},
         {20, 5.0}, {25, 10.0}
     };
 
@@ -52,8 +82,8 @@ vector<Pieza> generarListaPiezas(int cantidad) {
         bool rotada = 0;
 
         int indiceAleatorio = rand() % medidasDisponibles.size();
-        float w = medidasDisponibles[indiceAleatorio].first;
-        float h = medidasDisponibles[indiceAleatorio].second;
+        float w = medidasDisponibles[i].first;
+        float h = medidasDisponibles[i].second;
         
         Pieza p(i, x, y, w, h, rotada);
         listaPiezas.push_back(p);
@@ -73,8 +103,8 @@ vector<Stock> generarListaStocks(int cantidad) {
             w = 60;
             h = 60;
         } else {
-            w = 45;
-            h = 45;
+            w = 60;
+            h = 60;
         }
         
         Stock s(w, h); 
@@ -169,7 +199,7 @@ double calcularDesperdicio(const std::vector<Pieza>& listaPiezas, const Stock& s
 
     double areaStock = stock.calcularArea();
     double desperdicio = areaTotalPiezas / areaStock; // Desperdicio en términos de proporción
-    double fitness = 100 * (1.0 - desperdicio); // Fitness opcional si lo necesitas
+    double fitness = (1.0 - desperdicio); // Fitness opcional si lo necesitas
 
     return fitness;
 }
@@ -273,7 +303,7 @@ void ConstSol(float Q,float alpha, float beta, float rho, int tol, vector<Pieza>
                 anchoMayor += ancho;
                 altoMayor = alto;
             }
-//            
+            
 //            cout<< "Espacio: " << altoMayor << " , " << anchoMayor<<endl;
 //            cout<< "Ancho y Alto Mayor: " << anchoMayor << " , "<<altoMayor<<endl;
 
@@ -362,39 +392,41 @@ void AlgoritmoACO(int nHormigas, int maxIter, float Q, float alpha, float beta, 
     grafo.inicializarFeromonas(rho);
     
     for (int iter = 0; iter < maxIter && sinMej < tol; ++iter) {
-        cout << "Iteracion " << iter+1 << endl;
+//        cout << "Iteracion " << iter+1 << endl;
         for (int h = 0; h < nHormigas; ++h) {
-            //cout << "Iniciando algoritmo ACO con " << h+1 << " hormigas..." << endl;
+//            cout << "Iniciando algoritmo ACO con " << h+1 << " hormigas..." << endl;
             ConstSol(Q,alpha,beta,rho,tol,listaPiezas,listaStocks,grafo);
+            if(desTotal<0.0) break;
             if (mejorDesp>desTotal) { // Que genero menos, al revez
                 mejorDesp = desTotal;
                 solucion.assign(listaPiezasResultante.begin(), listaPiezasResultante.end());        
             }
         }
+        if(desTotal<0.0) break;
         if (mejorDespTotal>mejorDesp) { // Que genero menos, al revez
             mejorDespTotal = mejorDesp;   
             sinMej = 0;
         } else {
             sinMej++;
         }
-        imprimirSeparacion(MAX);
-        cout << " Mejor solución local: " << endl;
-        colocarPiezasEnOrden(solucion,listaStocks[0]);
-        desperdicio = calcularDesperdicio(solucion,listaStocks[0]);
-        cout<< "Desperdicio Sol. Local: "<< desperdicio <<endl;
+//        imprimirSeparacion(MAX);
+//        cout << " Mejor solución local: " << endl;
+//        colocarPiezasEnOrden(solucion,listaStocks[0]);
+//        desperdicio = calcularDesperdicio(solucion,listaStocks[0]);
+//        cout<< "Desperdicio Sol. Local: "<< desperdicio <<endl;
         grafo.evaporarFeromonas(rho);
-        imprimirSeparacion(MAX);
+//        imprimirSeparacion(MAX);
     }
-    colocarPiezasEnOrden(solucion,listaStocks[0]);
+//    colocarPiezasEnOrden(solucion,listaStocks[0]);
     desperdicio = calcularDesperdicio(solucion,listaStocks[0]);
-    cout<< "Desperdicio: "<< desperdicio <<endl;
+    cout<< desperdicio <<endl;
 }
 
 int main() {
     srand(static_cast<unsigned>(time(0)));
-    int nHormigas = 50;
+    int nHormigas = 20;
     int maxIter = 50;
-    float alpha = 1, beta = 5, rho = 0.1, Q=1;
+    float alpha = 1, beta = 5, rho = 0.9, Q=1;
     int tol = 50;
     
     vector<Pieza> listaPiezas = generarListaPiezas(numPiezas);
@@ -420,7 +452,9 @@ int main() {
     cout << "\nLista de Stock:\n";
     listaStocks[0].imprimirStock();
 
-    AlgoritmoACO(nHormigas, maxIter, Q, alpha, beta, rho, tol, listaPiezas, listaStocks, grafo);
+    for(int i=0;i<=29;i++){
+        AlgoritmoACO(nHormigas, maxIter, Q, alpha, beta, rho, tol, listaPiezas, listaStocks, grafo);
+    }
     cout << "Ejecución del algoritmo ACO finalizada." << endl;
         
     return 0;
