@@ -11,7 +11,7 @@
 #include "ClArista.h"
 #include "ClNodo.h"
 #include "ClGrafo.h"
-
+#include "ClHormiga.h"
 #include "ClPieza.h"
 #include "ClBase.h"
 
@@ -212,7 +212,7 @@ void ConstSol(float Q,float alpha, float beta, float rho, int tol, vector<Pieza>
     double feromonas,heuristica,probabilidad=100,mProb=0,incrementoFeromona;
     double epsilon = 1e-6, difHeu;
     vector<int> indicePiezaEscogida;
-    
+    Hormiga hormiga;
     vector<Pieza> listaPiezas = listaPiezas2;
     vector<Stock> listaStocks = listaStocks2;
     
@@ -263,7 +263,7 @@ void ConstSol(float Q,float alpha, float beta, float rho, int tol, vector<Pieza>
             return pieza.getID() == indiceAleatorio;
         });
         if (it2 != listaPiezas.end()) {
-            listaPiezas.erase(it2);
+            hormiga.insertarPieza(*it2);listaPiezas.erase(it2);
         }
         i++;
         piezaPasada = indiceAleatorio;
@@ -315,7 +315,7 @@ void ConstSol(float Q,float alpha, float beta, float rho, int tol, vector<Pieza>
                 return pieza.getID() == piezaEscogida;
             });
             if (it != listaPiezas.end()) {
-                listaPiezas.erase(it);
+                hormiga.insertarPieza(*it); listaPiezas.erase(it);
             }
             
             mProb=0;piezaEscogida=-1;
@@ -332,7 +332,8 @@ void ConstSol(float Q,float alpha, float beta, float rho, int tol, vector<Pieza>
         j++;
     }
     listaPiezasResultante = crearListaPiezas(indicePiezaEscogida,listaPiezas2);
-    desTotal = calcularDesperdicio(listaPiezasResultante,listaStocks2[0]);
+    desTotal = calcularDesperdicio(listaPiezasResultante,listaStocks2[0]); 
+    hormiga.setDesperdicio(desTotal);
     incrementoFeromona = Q / (1.0 + desTotal);
     for (size_t k = 0; k < indicePiezaEscogida.size() - 1; ++k) {
         grafo.aumentarFeromonas(indicePiezaEscogida[k], indicePiezaEscogida[k + 1], incrementoFeromona);
